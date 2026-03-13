@@ -40,12 +40,37 @@ interface BuilderPalette {
 - Publish → GitHub API commit → Docsify viewer reads from raw.githubusercontent.com
 - Two separate sites: Editor (private, React) and Viewer (public, Docsify zero-build)
 
-## Tech Stack (TBD)
+## Tech Stack
 
-- Frontend: React or Preact
-- Auth: GitHub OAuth (for the doc editor product)
-- Storage: GitHub API (repo = database for docs)
-- Preview: component-renderer.js from DocsifyTemplate
+| Layer | Technology | Purpose |
+|---|---|---|
+| Frontend | React + TypeScript | Editor UI |
+| Backend/DB | Convex | Auth, roles, user management, project metadata |
+| Auth | Convex + Clerk | Multi-user, roles (admin/editor/viewer) |
+| Content Storage | GitHub API | .md files, YAML components (repo = content DB) |
+| Versioning | Git branches/tags | Document versions without extra DB |
+| Viewer | Docsify | Reads from raw.githubusercontent.com (zero-build, separate site) |
+| Preview | component-renderer.js | From DocsifyTemplate, renders YAML → HTML |
+
+### Why Convex
+
+- **SOC 2 Type II compliant** — required for work/enterprise use (Akcelita)
+- Also HIPAA and GDPR compliant, hosted on AWS
+- Real-time reactive queries — live preview updates, collaborative editing potential
+- Built-in auth via Clerk integration — multi-user, roles, permissions
+- Serverless, zero config — no infrastructure to manage
+- TypeScript native — matches frontend stack
+- Built-in components and AI tooling — easy to add AI features later (smart suggestions, auto-categorization, content generation)
+- Convex handles: users, roles, permissions, project metadata, editor state
+- Git handles: content (.md files), versioning (branches/tags), publishing
+
+### What Lives Where
+
+```
+Convex DB:  users, roles, permissions, project config, editor metadata
+GitHub:     .md files, YAML components, versions (branches), publishing
+Docsify:    viewer (reads GitHub raw URLs, zero-build, separate deploy)
+```
 
 ## Related Projects
 
