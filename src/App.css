@@ -846,18 +846,108 @@ body {
 [data-type="sequence-diagram"] .block-type { color: var(--type-diagram); }
 [data-type="text-block"] .block-type { color: var(--ink-tertiary); }
 
-.block-type .type-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 2px;
-  display: inline-block;
+/* ---- Block body: layout variants ---- */
+
+.block-body {
+  margin-top: var(--sp-1);
 }
 
-.block-summary {
+/* Prose: clean text, content-forward */
+.block-body--prose .block-prose {
   font-family: var(--font-doc);
   font-size: var(--text-base);
   color: var(--ink-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
+}
+
+/* Badge: colored method badge + monospace path */
+.block-body--badge {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.block-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--surface-elevated);
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.block-path {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Entity: name as title + property count */
+.block-body--entity {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.block-entity-name {
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.block-count {
+  font-size: var(--text-sm);
+  color: var(--ink-tertiary);
+}
+
+/* Diagram: title + participant pills */
+.block-body--diagram {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.block-diagram-title {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.block-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.block-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--sp-2);
+  border-radius: 100px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  background: var(--type-diagram-soft);
+  color: var(--ink-secondary);
+  border: 1px solid var(--type-diagram-mid);
+}
+
+/* Ghost badge in empty state */
+.ghost-badge {
+  display: inline-flex;
+  padding: 1px var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--surface-elevated);
+  letter-spacing: 0.3px;
 }
 
 .block-remove {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ComponentDefinition, ComponentInstance } from '../../models/types'
+import { getBlockDisplay, getMethodColor } from '../../models/doc-editor/block-display'
 
 interface Props {
   title: string
@@ -12,37 +13,75 @@ interface Props {
   onInsertAt?: (def: ComponentDefinition, index: number) => void
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  'entity-schema': 'var(--type-schema)',
-  'api-endpoint': 'var(--type-api)',
-  'sequence-diagram': 'var(--type-diagram)',
-  'text-block': 'var(--type-text)',
+function BlockIcon({ path, color }: { path: string; color: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <path d={path} stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
-function getTypeColor(definitionId: string): string {
-  return TYPE_COLORS[definitionId] ?? 'var(--type-text)'
-}
+/** Renders block body based on layout variant from config */
+function BlockBody({ instance }: { instance: ComponentInstance }) {
+  const config = getBlockDisplay(instance.definitionId)
 
-function getBlockSummary(instance: ComponentInstance, def: ComponentDefinition | undefined): string {
-  if (!def) return instance.definitionId
+  if (config.layout === 'badge') {
+    const badge = config.badge?.(instance.values)
+    const summary = config.summary(instance.values)
+    return (
+      <div className="block-body block-body--badge">
+        {badge && (
+          <span
+            className="block-badge"
+            style={{ background: getMethodColor(badge) }}
+          >
+            {badge}
+          </span>
+        )}
+        <span className="block-path">{summary}</span>
+      </div>
+    )
+  }
 
-  if (instance.definitionId === 'text-block') {
-    const content = String(instance.values.content ?? '')
-    return content.slice(0, 120) || 'Empty text block'
-  }
-  if (instance.definitionId === 'entity-schema') {
-    return String(instance.values.name ?? 'Unnamed model')
-  }
-  if (instance.definitionId === 'api-endpoint') {
-    const method = instance.values.method ?? ''
-    const path = instance.values.path ?? ''
-    return method && path ? `${method} ${path}` : 'Unnamed endpoint'
-  }
-  if (instance.definitionId === 'sequence-diagram') {
-    return String(instance.values.title ?? 'Unnamed flow')
+  if (config.layout === 'entity') {
+    const summary = config.summary(instance.values)
+    const countInfo = config.count?.(instance.values)
+    return (
+      <div className="block-body block-body--entity">
+        <span className="block-entity-name">{summary}</span>
+        {countInfo && countInfo.n > 0 && (
+          <span className="block-count">
+            {countInfo.n} {countInfo.label}
+          </span>
+        )}
+      </div>
+    )
   }
 
-  return def.name
+  if (config.layout === 'diagram') {
+    const summary = config.summary(instance.values)
+    const pills = config.pills?.(instance.values) ?? []
+    return (
+      <div className="block-body block-body--diagram">
+        <span className="block-diagram-title">{summary}</span>
+        {pills.length > 0 && (
+          <div className="block-pills">
+            {pills.map((p, i) => (
+              <span key={i} className="block-pill">{p}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // prose (default)
+  const summary = config.summary(instance.values)
+  return (
+    <div className="block-body block-body--prose">
+      <span className="block-prose">{summary}</span>
+    </div>
+  )
 }
 
 function InsertGap({
@@ -71,24 +110,27 @@ function InsertGap({
       </div>
       {open && (
         <div className="insert-palette">
-          {definitions.map(def => (
-            <button
-              key={def.id}
-              className="insert-palette-item"
-              onClick={(e) => {
-                e.stopPropagation()
-                onInsert(def, index)
-                setOpen(false)
-              }}
-              title={def.description}
-            >
-              <span
-                className="insert-palette-dot"
-                style={{ background: getTypeColor(def.id) }}
-              />
-              <span>{def.name}</span>
-            </button>
-          ))}
+          {definitions.map(def => {
+            const dc = getBlockDisplay(def.id)
+            return (
+              <button
+                key={def.id}
+                className="insert-palette-item"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onInsert(def, index)
+                  setOpen(false)
+                }}
+                title={def.description}
+              >
+                <span
+                  className="insert-palette-dot"
+                  style={{ background: dc.color }}
+                />
+                <span>{def.name}</span>
+              </button>
+            )
+          })}
         </div>
       )}
     </div>
@@ -121,7 +163,7 @@ function EmptyCanvas({ definitions, onAdd }: { definitions: ComponentDefinition[
               <span className="step-number">1</span>
               <div className="step-content">
                 <span className="step-label">Add a block</span>
-                <span className="step-desc">from the sidebar</span>
+                <span className="step-desc">tap the + button</span>
               </div>
             </div>
             <div className="empty-step-arrow">
@@ -154,10 +196,9 @@ function EmptyCanvas({ definitions, onAdd }: { definitions: ComponentDefinition[
           <div className="empty-preview">
             <div className="ghost-block" data-type="api-endpoint">
               <div className="ghost-header">
-                <span className="ghost-dot" style={{ background: 'var(--type-api)' }} />
-                <span className="ghost-type">API Endpoint</span>
+                <span className="ghost-badge" style={{ background: 'var(--success)' }}>GET</span>
+                <span className="ghost-summary">/api/users</span>
               </div>
-              <span className="ghost-summary">GET /api/users</span>
             </div>
             <div className="ghost-block" data-type="entity-schema">
               <div className="ghost-header">
@@ -195,6 +236,7 @@ export function DocumentCanvas({ instances, definitions, selectedId, onSelect, o
 
           {instances.map((inst, i) => {
             const def = definitions.find(d => d.id === inst.definitionId)
+            const config = getBlockDisplay(inst.definitionId)
             const isSelected = inst.id === selectedId
             return (
               <div key={inst.id}>
@@ -205,11 +247,7 @@ export function DocumentCanvas({ instances, definitions, selectedId, onSelect, o
                 >
                   <div className="block-header">
                     <span className="block-type">
-                      <span
-                        className="type-dot"
-                        data-type={inst.definitionId}
-                        style={{ background: getTypeColor(inst.definitionId) }}
-                      />
+                      <BlockIcon path={config.icon} color={config.color} />
                       {def?.name}
                     </span>
                     <button
@@ -220,9 +258,7 @@ export function DocumentCanvas({ instances, definitions, selectedId, onSelect, o
                       &times;
                     </button>
                   </div>
-                  <div className="block-summary">
-                    {getBlockSummary(inst, def)}
-                  </div>
+                  <BlockBody instance={inst} />
                 </div>
                 {/* Insert gap after each block */}
                 <InsertGap index={i + 1} definitions={definitions} onInsert={handleInsert} />
