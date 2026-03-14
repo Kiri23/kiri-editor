@@ -165,12 +165,124 @@ body {
 }
 
 /* ============================================
+   File Tree — Document navigation
+   ============================================ */
+
+.file-tree {
+  width: 200px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  background: var(--document);
+  display: flex;
+  flex-direction: column;
+}
+
+.file-tree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-3) var(--sp-2);
+}
+
+.file-tree-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--ink-muted);
+}
+
+.file-tree-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-tertiary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.file-tree-add:hover {
+  border-color: var(--blueprint);
+  color: var(--blueprint);
+  background: var(--blueprint-soft);
+}
+
+.file-tree-list {
+  list-style: none;
+  padding: 0 var(--sp-2);
+  flex: 1;
+}
+
+.file-tree-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  transition: all var(--duration) var(--ease);
+  position: relative;
+}
+
+.file-tree-item:hover {
+  background: var(--control-bg);
+  color: var(--ink);
+}
+
+.file-tree-item.active {
+  background: var(--blueprint-soft);
+  color: var(--ink);
+}
+
+.file-tree-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--ink-muted);
+}
+
+.file-tree-item.active .file-tree-icon {
+  color: var(--blueprint);
+}
+
+.file-tree-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tree-delete {
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: all var(--duration) var(--ease);
+  line-height: 1;
+}
+
+.file-tree-item:hover .file-tree-delete { opacity: 1; }
+.file-tree-delete:hover { color: var(--danger); }
+
+/* ============================================
    Sidebar — Component Palette
-   Same surface as workspace. Thin border separates.
    ============================================ */
 
 .sidebar {
-  width: 220px;
+  width: 200px;
   border-right: 1px solid var(--border);
   overflow-y: auto;
   padding: var(--sp-4);
@@ -522,6 +634,8 @@ body {
    ============================================ */
 
 @media (max-width: 1024px) {
+  .file-tree { display: none; }
+
   .sidebar {
     width: 56px;
     padding: var(--sp-3) var(--sp-2);
@@ -584,6 +698,8 @@ body {
   .editor-body {
     flex-direction: column;
   }
+
+  .file-tree { display: none; }
 
   /* Sidebar becomes horizontal strip */
   .sidebar {

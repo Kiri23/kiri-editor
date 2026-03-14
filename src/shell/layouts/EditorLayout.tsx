@@ -1,3 +1,4 @@
+import { FileTree } from '../components/FileTree'
 import { ComponentPalette } from '../components/ComponentPalette'
 import { DocumentCanvas } from '../components/DocumentCanvas'
 import { PropertyEditor } from '../components/PropertyEditor'
@@ -39,6 +40,14 @@ export function EditorLayout() {
       </header>
 
       <div className="editor-body">
+        <FileTree
+          documents={editor.documents}
+          activeId={editor.documentId}
+          onSelect={editor.switchDocument}
+          onCreate={editor.createNewDocument}
+          onDelete={editor.deleteDocument}
+        />
+
         <ComponentPalette
           components={editor.palette}
           onAdd={editor.addComponent}

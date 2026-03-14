@@ -7,8 +7,9 @@
  * Flow:
  * 1. On mount: getOrCreate project → load or create first document
  * 2. On edit: update local state immediately (optimistic)
- * 3. On save: persist to Convex
- * 4. On publish: (future) commit to GitHub
+ * 3. On save: persist to Convex (1s debounce)
+ * 4. On switch: save current, load next
+ * 5. On publish: (future) commit to GitHub
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -27,6 +28,13 @@ import {
 import { docComponents } from '../models/doc-editor/components'
 import { renderDocument } from '../models/doc-editor/renderer'
 
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'untitled'
+}
+
 export function useDocEditor() {
   const [state, setState] = useState<EditorState>(() =>
     createEditorState({
@@ -41,10 +49,11 @@ export function useDocEditor() {
 
   // Convex mutations
   const getOrCreateProject = useMutation(api.projects.getOrCreate)
-  const createDocument = useMutation(api.documents.create)
+  const createDocumentMut = useMutation(api.documents.create)
   const updateDocument = useMutation(api.documents.update)
+  const removeDocument = useMutation(api.documents.remove)
 
-  // Convex queries — reactive, auto-update when DB changes
+  // Convex queries — reactive
   const documents = useQuery(
     api.documents.list,
     projectId ? { projectId } : 'skip'
@@ -53,27 +62,23 @@ export function useDocEditor() {
   // Auto-save debounce ref
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // --- Bootstrap: ensure project + document exist ---
+  // --- Bootstrap: ensure project exists ---
   useEffect(() => {
     let cancelled = false
-
     async function bootstrap() {
       const pid = await getOrCreateProject()
-      if (cancelled) return
-      setProjectId(pid)
+      if (!cancelled) setProjectId(pid)
     }
-
     bootstrap()
     return () => { cancelled = true }
   }, [getOrCreateProject])
 
-  // Once we have documents list, load or create first doc
+  // Once we have documents list, load first doc or create one
   useEffect(() => {
     if (!projectId || documents === undefined) return
-    if (documentId) return // already loaded
+    if (documentId) return
 
     let cancelled = false
-
     async function loadOrCreate() {
       if (documents && documents.length > 0) {
         const doc = documents[0]
@@ -89,7 +94,7 @@ export function useDocEditor() {
           })),
         }))
       } else if (projectId) {
-        const docId = await createDocument({
+        const docId = await createDocumentMut({
           projectId,
           title: 'Untitled Document',
           path: 'docs/untitled.md',
@@ -105,18 +110,16 @@ export function useDocEditor() {
       }
       if (!cancelled) setIsLoading(false)
     }
-
     loadOrCreate()
     return () => { cancelled = true }
-  }, [projectId, documents, documentId, createDocument])
+  }, [projectId, documents, documentId, createDocumentMut])
 
-  // --- Auto-save: debounce writes to Convex ---
+  // --- Persist: save current state to Convex ---
   const persistToConvex = useCallback(() => {
     if (!documentId) return
 
     setState(s => {
       if (!s.isDirty) return s
-
       updateDocument({
         id: documentId,
         title: s.document.title,
@@ -126,7 +129,6 @@ export function useDocEditor() {
           values: c.values,
         })),
       })
-
       return { ...s, isDirty: false }
     })
   }, [documentId, updateDocument])
@@ -136,7 +138,78 @@ export function useDocEditor() {
     saveTimerRef.current = setTimeout(persistToConvex, 1000)
   }, [persistToConvex])
 
-  // --- ViewModel + palette (unchanged) ---
+  // --- Document management: switch, create, delete ---
+  const switchDocument = useCallback((docId: Id<'documents'>) => {
+    if (docId === documentId) return
+
+    // Save current before switching
+    persistToConvex()
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+
+    // Find the target doc from the reactive query
+    const target = documents?.find(d => d._id === docId)
+    if (!target) return
+
+    setDocumentId(docId)
+    setState(createEditorState({
+      id: docId,
+      title: target.title,
+      components: (target.components ?? []).map(c => ({
+        id: c.id,
+        definitionId: c.definitionId,
+        values: c.values as Record<string, string | number | boolean>,
+      })),
+    }))
+  }, [documentId, documents, persistToConvex])
+
+  const createNewDocument = useCallback(async () => {
+    if (!projectId) return
+
+    // Save current first
+    persistToConvex()
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+
+    const title = 'Untitled Document'
+    const docId = await createDocumentMut({
+      projectId,
+      title,
+      path: `docs/${toSlug(title)}.md`,
+      branch: 'main',
+    })
+
+    setDocumentId(docId)
+    setState(createEditorState({
+      id: docId,
+      title,
+      components: [],
+    }))
+  }, [projectId, persistToConvex, createDocumentMut])
+
+  const deleteDocument = useCallback(async (docId: Id<'documents'>) => {
+    if (!documents || documents.length <= 1) return // don't delete last doc
+
+    await removeDocument({ id: docId })
+
+    // If we deleted the active doc, switch to another
+    if (docId === documentId) {
+      const remaining = documents.filter(d => d._id !== docId)
+      if (remaining.length > 0) {
+        const next = remaining[0]
+        setDocumentId(next._id)
+        setState(createEditorState({
+          id: next._id,
+          title: next.title,
+          components: (next.components ?? []).map(c => ({
+            id: c.id,
+            definitionId: c.definitionId,
+            values: c.values as Record<string, string | number | boolean>,
+          })),
+        }))
+      }
+    }
+  }, [documents, documentId, removeDocument])
+
+  // --- ViewModel + palette ---
   const palette = useMemo(() => docComponents, [])
 
   const previewHtml = useMemo(
@@ -154,7 +227,7 @@ export function useDocEditor() {
     return palette.find(d => d.id === selectedComponent.definitionId) ?? null
   }, [selectedComponent, palette])
 
-  // --- Commands: update local state, schedule save ---
+  // --- Commands ---
   const handleAddComponent = useCallback((def: ComponentDefinition) => {
     setState(s => addComponent(s, def))
     scheduleSave()
@@ -184,7 +257,6 @@ export function useDocEditor() {
   }, [scheduleSave])
 
   const handlePublish = useCallback(async () => {
-    // Save first, then publish
     persistToConvex()
     // TODO: GitHub API commit
     console.log('Publishing...', previewHtml)
@@ -193,6 +265,8 @@ export function useDocEditor() {
   return {
     // State
     document: state.document,
+    documentId,
+    documents: documents ?? [],
     selectedComponent,
     selectedDefinition,
     isDirty: state.isDirty,
@@ -200,7 +274,12 @@ export function useDocEditor() {
     previewHtml,
     palette,
 
-    // Commands
+    // Document management
+    switchDocument,
+    createNewDocument,
+    deleteDocument,
+
+    // Editor commands
     addComponent: handleAddComponent,
     updateProperty: handleUpdateProperty,
     removeComponent: handleRemoveComponent,
