@@ -1,8 +1,3 @@
-/**
- * UI Shell — Component Palette
- * Shows available components to drag/add to the document.
- */
-
 import type { ComponentDefinition } from '../../models/types'
 
 interface Props {
@@ -12,18 +7,24 @@ interface Props {
 
 export function ComponentPalette({ components, onAdd }: Props) {
   return (
-    <div className="palette">
-      <h3>Components</h3>
-      <ul>
-        {components.map(def => (
-          <li key={def.id}>
-            <button onClick={() => onAdd(def)} title={def.description}>
-              <span className="icon">{def.icon}</span>
-              <span>{def.name}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <aside className="sidebar">
+      <div className="sidebar-section">
+        <div className="sidebar-label">Insert Block</div>
+        <ul className="palette-items">
+          {components.map(def => (
+            <li key={def.id}>
+              <button
+                className="palette-item"
+                onClick={() => onAdd(def)}
+                title={def.description}
+              >
+                <span className="type-dot" data-type={def.id} />
+                <span>{def.name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
   )
 }

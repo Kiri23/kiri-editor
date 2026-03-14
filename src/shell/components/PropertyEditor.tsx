@@ -1,26 +1,24 @@
-/**
- * UI Shell — Property Editor
- * Shows fields for the selected component instance.
- */
-
-import type { ComponentField, ComponentInstance } from '../../models/types'
+import type { ComponentDefinition, ComponentField, ComponentInstance } from '../../models/types'
 
 interface Props {
   instance: ComponentInstance
+  definition: ComponentDefinition
   fields: ComponentField[]
   onUpdate: (instanceId: string, key: string, value: string | number | boolean) => void
   onRemove: (instanceId: string) => void
+  onClose: () => void
 }
 
-export function PropertyEditor({ instance, fields, onUpdate, onRemove }: Props) {
+export function PropertyEditor({ instance, definition, fields, onUpdate, onRemove, onClose }: Props) {
   return (
-    <div className="property-editor">
-      <div className="property-header">
-        <h3>Properties</h3>
-        <button className="remove-btn" onClick={() => onRemove(instance.id)}>
-          Remove
+    <div className="property-panel">
+      <div className="property-panel-header">
+        <span className="property-panel-title">{definition.name}</span>
+        <button className="property-close" onClick={onClose} aria-label="Close">
+          &times;
         </button>
       </div>
+
       {fields.map(field => (
         <div key={field.key} className="field">
           <label htmlFor={`field-${field.key}`}>
@@ -55,6 +53,10 @@ export function PropertyEditor({ instance, fields, onUpdate, onRemove }: Props) 
           )}
         </div>
       ))}
+
+      <button className="remove-block-btn" onClick={() => onRemove(instance.id)}>
+        Remove Block
+      </button>
     </div>
   )
 }
