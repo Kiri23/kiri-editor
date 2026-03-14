@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ComponentDefinition, ComponentInstance } from '../../models/types'
 import { getBlockDisplay, getMethodColor } from '../../models/doc-editor/block-display'
 
@@ -94,6 +94,15 @@ function InsertGap({
   onInsert: (def: ComponentDefinition, index: number) => void
 }) {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [open])
 
   return (
     <div className="block-gap">

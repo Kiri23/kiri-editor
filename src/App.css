@@ -111,6 +111,23 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Global focus-visible ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--blueprint);
+  outline-offset: 2px;
+}
+
+/* Remove default outline — focus-visible handles it */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure hidden interactive elements appear on focus */
+.block-remove:focus-visible,
+.file-tree-delete:focus-visible {
+  opacity: 1;
+}
+
 body {
   font-family: var(--font-ui);
   color: var(--ink);
@@ -149,8 +166,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -187,7 +204,7 @@ body {
 }
 
 .doc-title:hover { background: var(--control-bg); }
-.doc-title:focus { background: var(--surface-elevated); box-shadow: 0 0 0 2px var(--blueprint-border); }
+.doc-title:focus { background: var(--surface-elevated); box-shadow: 0 0 0 2px var(--blueprint-border); outline: none; }
 
 .header-actions {
   display: flex;
@@ -199,7 +216,7 @@ body {
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--draft);
-  padding: 2px var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
   background: var(--draft-soft);
   border-radius: 100px;
 }
@@ -266,8 +283,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: transparent;
@@ -292,14 +309,27 @@ body {
 .file-tree-item {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-1) var(--sp-2);
   border-radius: var(--radius-sm);
-  cursor: pointer;
   font-size: var(--text-base);
   color: var(--ink-secondary);
   transition: all var(--duration) var(--ease);
   position: relative;
+}
+
+.file-tree-select {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 
 .file-tree-item:hover {
@@ -331,16 +361,20 @@ body {
 }
 
 .file-tree-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border: none;
   background: transparent;
   color: var(--ink-muted);
   cursor: pointer;
   font-size: var(--text-base);
-  padding: 0 2px;
   border-radius: var(--radius-sm);
   opacity: 0;
   transition: all var(--duration) var(--ease);
-  line-height: 1;
+  flex-shrink: 0;
 }
 
 .file-tree-item:hover .file-tree-delete { opacity: 1; }
@@ -450,7 +484,7 @@ body {
 .fab-palette-text {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 0;
 }
 
 .fab-palette-name {
@@ -628,7 +662,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--sp-1);
-  margin-bottom: 2px;
+  margin-bottom: var(--sp-1);
 }
 
 .ghost-dot {
@@ -688,6 +722,7 @@ body {
 .block-gap {
   padding: var(--sp-2) 0;
   cursor: pointer;
+  position: relative;
 }
 
 .insert-line button {
@@ -695,8 +730,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border: 1px solid var(--border-emphasis);
   border-radius: 50%;
   background: var(--surface-elevated);
@@ -730,9 +765,6 @@ body {
   background: var(--border);
 }
 
-.block-gap {
-  position: relative;
-}
 
 /* --- Insert palette: inline mini picker --- */
 .insert-palette {
@@ -870,7 +902,7 @@ body {
 .block-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
@@ -929,7 +961,7 @@ body {
 .block-pill {
   display: inline-flex;
   align-items: center;
-  padding: 1px var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
   border-radius: 100px;
   font-size: var(--text-sm);
   font-weight: 500;
@@ -941,7 +973,7 @@ body {
 /* Ghost badge in empty state */
 .ghost-badge {
   display: inline-flex;
-  padding: 1px var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
@@ -951,15 +983,20 @@ body {
 }
 
 .block-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border: none;
   background: transparent;
   color: var(--ink-muted);
   cursor: pointer;
   font-size: var(--text-md);
-  padding: var(--sp-1);
   border-radius: var(--radius-sm);
   opacity: 0;
   transition: all var(--duration) var(--ease);
+  flex-shrink: 0;
 }
 
 .component-block:hover .block-remove { opacity: 1; }
@@ -969,6 +1006,10 @@ body {
    Property Panel — Slides in from right
    ============================================ */
 
+.property-panel-backdrop {
+  display: none;
+}
+
 .property-panel {
   width: var(--property-panel-width);
   border-left: 1px solid var(--border);
@@ -976,6 +1017,10 @@ body {
   overflow-y: auto;
   padding: var(--sp-5);
   flex-shrink: 0;
+}
+
+.property-panel-drag {
+  display: none;
 }
 
 .property-panel-header {
@@ -1048,10 +1093,17 @@ body {
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
-  outline: none;
   border-color: var(--control-focus);
   box-shadow: 0 0 0 3px var(--blueprint-soft);
   background: var(--surface-elevated);
+  outline: none;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--blueprint);
+  outline-offset: 1px;
 }
 
 .remove-block-btn {
@@ -1120,7 +1172,7 @@ body {
   }
 
   .property-panel {
-    width: 280px;
+    width: calc(var(--property-panel-width) - 40px);
   }
 }
 
@@ -1173,7 +1225,7 @@ body {
     padding: var(--sp-4) var(--sp-3);
     border-radius: 1px;
     min-height: 400px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-sm);
     transform: none;
   }
 
@@ -1192,27 +1244,50 @@ body {
   }
 
   .empty-preview {
-    max-width: 100%;
+    display: none;
   }
 
   .component-block {
     padding: var(--sp-3);
+    margin: 0;
   }
 
   .block-remove {
     opacity: 1;
   }
 
-  /* Insert gaps always visible on mobile (no hover) */
+  /* Tighter insert gaps on mobile — collapse to thin tap target */
+  .block-gap {
+    padding: var(--sp-1) 0;
+  }
+
   .insert-line {
-    opacity: 0.5;
+    opacity: 0;
+  }
+
+  .block-gap:active .insert-line {
+    opacity: 1;
+  }
+
+  .insert-line button {
+    width: 28px;
+    height: 28px;
+    font-size: var(--text-base);
   }
 
   .insert-palette {
     flex-wrap: wrap;
   }
 
-  /* Property panel becomes full-width overlay */
+  /* Property panel becomes bottom sheet overlay */
+  .property-panel-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    background: var(--overlay);
+  }
+
   .property-panel {
     position: fixed;
     bottom: 0;
@@ -1226,10 +1301,39 @@ body {
     box-shadow: var(--shadow-sheet);
     z-index: 10;
     padding: var(--sp-4);
+    padding-top: var(--sp-2);
+  }
+
+  .property-panel-drag {
+    display: flex;
+    justify-content: center;
+    padding: var(--sp-2) 0;
+    cursor: grab;
+  }
+
+  .property-panel-drag-bar {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-emphasis);
   }
 
   .property-panel-header {
     margin-bottom: var(--sp-3);
     padding-bottom: var(--sp-2);
+  }
+}
+
+/* ============================================
+   Reduced Motion — respect user preference
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

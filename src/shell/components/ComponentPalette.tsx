@@ -1,20 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ComponentDefinition } from '../../models/types'
+import { getBlockDisplay } from '../../models/doc-editor/block-display'
 
 interface Props {
   components: ComponentDefinition[]
   onAdd: (def: ComponentDefinition) => void
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  'entity-schema': 'var(--type-schema)',
-  'api-endpoint': 'var(--type-api)',
-  'sequence-diagram': 'var(--type-diagram)',
-  'text-block': 'var(--type-text)',
-}
-
 export function ComponentPalette({ components, onAdd }: Props) {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [open])
 
   return (
     <>
@@ -31,7 +34,7 @@ export function ComponentPalette({ components, onAdd }: Props) {
               >
                 <span
                   className="fab-palette-dot"
-                  style={{ background: TYPE_COLORS[def.id] ?? 'var(--type-text)' }}
+                  style={{ background: getBlockDisplay(def.id).color }}
                 />
                 <div className="fab-palette-text">
                   <span className="fab-palette-name">{def.name}</span>
