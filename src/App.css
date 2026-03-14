@@ -533,6 +533,8 @@ body {
   min-height: 600px;
   transform: rotate(-0.3deg);
   position: relative;
+  overflow: hidden;
+  align-self: flex-start;
 }
 
 /* Subtle paper grain */
