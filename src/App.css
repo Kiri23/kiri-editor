@@ -34,6 +34,7 @@
 
   /* Semantic */
   --draft: #f59e0b;
+  --draft-soft: rgba(245, 158, 11, 0.1);
   --success: #22c55e;
   --danger: #ef4444;
   --danger-soft: rgba(239, 68, 68, 0.08);
@@ -47,6 +48,21 @@
   --control-bg: rgba(0, 0, 0, 0.04);
   --control-border: rgba(0, 0, 0, 0.12);
   --control-focus: var(--blueprint);
+
+  /* Shadows & Overlays */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-drawer: 4px 0 16px rgba(0, 0, 0, 0.08);
+  --shadow-sheet: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  --overlay: rgba(0, 0, 0, 0.2);
+
+  /* Layout */
+  --header-height: 52px;
+  --sidebar-width: 200px;
+  --file-tree-width: 200px;
+  --file-tree-mobile-width: 240px;
+  --property-panel-width: 320px;
+  --canvas-max-width: 680px;
 
   /* Spacing — 8px base */
   --sp-1: 4px;
@@ -99,7 +115,7 @@ body {
   padding: var(--sp-3) var(--sp-5);
   background: var(--document);
   border-bottom: 1px solid var(--border);
-  height: 52px;
+  height: var(--header-height);
   flex-shrink: 0;
 }
 
@@ -164,7 +180,7 @@ body {
   font-weight: 500;
   color: var(--draft);
   padding: 2px var(--sp-2);
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--draft-soft);
   border-radius: 100px;
 }
 
@@ -201,7 +217,7 @@ body {
 .file-tree-backdrop { display: none; }
 
 .file-tree {
-  width: 200px;
+  width: var(--file-tree-width);
   border-right: 1px solid var(--border);
   overflow-y: auto;
   flex-shrink: 0;
@@ -315,7 +331,7 @@ body {
    ============================================ */
 
 .sidebar {
-  width: 200px;
+  width: var(--sidebar-width);
   border-right: 1px solid var(--border);
   overflow-y: auto;
   padding: var(--sp-4);
@@ -394,12 +410,10 @@ body {
 
 .document-canvas {
   width: 100%;
-  max-width: 680px;
+  max-width: var(--canvas-max-width);
   background: var(--document);
   border-radius: var(--radius-lg);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-sm);
   padding: var(--sp-8) var(--sp-8);
   min-height: 600px;
 }
@@ -492,7 +506,7 @@ body {
 
 .component-block:hover {
   border-color: var(--border-emphasis);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-md);
 }
 
 .component-block.selected {
@@ -557,7 +571,7 @@ body {
    ============================================ */
 
 .property-panel {
-  width: 320px;
+  width: var(--property-panel-width);
   border-left: 1px solid var(--border);
   background: var(--document);
   overflow-y: auto;
@@ -669,7 +683,7 @@ body {
 @media (max-width: 1024px) {
   .file-tree-container {
     position: fixed;
-    top: 52px;
+    top: var(--header-height);
     left: 0;
     bottom: 0;
     z-index: 20;
@@ -682,18 +696,18 @@ body {
   }
 
   .file-tree {
-    width: 240px;
+    width: var(--file-tree-mobile-width);
     height: 100%;
-    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-drawer);
   }
 
   .file-tree-backdrop {
     display: block;
     position: fixed;
     inset: 0;
-    top: 52px;
+    top: var(--header-height);
     z-index: 19;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--overlay);
   }
 
   .sidebar {
@@ -829,7 +843,7 @@ body {
     border-left: none;
     border-top: 1px solid var(--border-emphasis);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sheet);
     z-index: 10;
     padding: var(--sp-4);
   }

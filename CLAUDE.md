@@ -106,6 +106,12 @@ cd ~/kiri-editor && npx vite --host
 
 Convex backend runs in the cloud (already deployed). Run `npx convex dev --once` after changing convex/ files.
 
+## CSS Rules
+
+- **ALWAYS use CSS variables** for colors, shadows, spacing, sizes, fonts, and layout dimensions. Never hardcode values outside of `:root`. All branding/theming must be swappable by changing only `:root` variables.
+- All tokens live in `src/App.css` under `:root`. See `.interface-design/system.md` for the full design system.
+- When adding new styles, check if an existing token fits before creating a new one.
+
 ## Related Projects
 
 - DocsifyTemplate: https://github.com/Kiri23/DocsifyTemplate (viewer)
