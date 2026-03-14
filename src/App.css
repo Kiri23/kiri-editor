@@ -70,7 +70,6 @@
 
   /* Layout */
   --header-height: 52px;
-  --sidebar-width: 200px;
   --file-tree-width: 200px;
   --file-tree-mobile-width: 240px;
   --property-panel-width: 320px;
@@ -348,77 +347,123 @@ body {
 .file-tree-delete:hover { color: var(--danger); }
 
 /* ============================================
-   Sidebar — Component Palette
+   FAB — Floating Add Block Button
    ============================================ */
 
-.sidebar {
-  width: var(--sidebar-width);
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  padding: var(--sp-4);
-  flex-shrink: 0;
-  background: var(--document);
+.fab-container {
+  position: fixed;
+  bottom: var(--sp-5);
+  right: var(--sp-5);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-3);
 }
 
-.sidebar-section {
-  margin-bottom: var(--sp-5);
+.fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ink);
+  color: var(--document);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: all var(--duration) var(--ease);
 }
 
-.sidebar-label {
+.fab:hover {
+  background: var(--ink-secondary);
+  transform: scale(1.05);
+}
+
+.fab-open {
+  transform: rotate(45deg);
+}
+
+.fab-open:hover {
+  transform: rotate(45deg) scale(1.05);
+}
+
+.fab-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 14;
+  background: transparent;
+}
+
+/* --- FAB Palette popover --- */
+.fab-palette {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 12px 32px rgba(0, 0, 0, 0.06);
+  padding: var(--sp-2);
+  min-width: 220px;
+  animation: fabPaletteIn 150ms var(--ease);
+}
+
+@keyframes fabPaletteIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fab-palette-label {
   font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   color: var(--ink-muted);
-  margin-bottom: var(--sp-2);
-  padding: 0 var(--sp-1);
+  padding: var(--sp-2) var(--sp-3) var(--sp-1);
 }
 
-.palette-items {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.palette-item {
+.fab-palette-item {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   width: 100%;
-  padding: var(--sp-2) var(--sp-2);
+  padding: var(--sp-3);
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
   cursor: pointer;
   font-family: var(--font-ui);
-  font-size: var(--text-base);
-  color: var(--ink-secondary);
-  transition: all var(--duration) var(--ease);
   text-align: left;
+  transition: all var(--duration) var(--ease);
 }
 
-.palette-item:hover {
+.fab-palette-item:hover {
   background: var(--control-bg);
-  color: var(--ink);
 }
 
-.palette-item:has(.type-dot[data-type="entity-schema"]):hover { background: var(--type-schema-soft); }
-.palette-item:has(.type-dot[data-type="api-endpoint"]):hover { background: var(--type-api-soft); }
-.palette-item:has(.type-dot[data-type="sequence-diagram"]):hover { background: var(--type-diagram-soft); }
-.palette-item:has(.type-dot[data-type="text-block"]):hover { background: var(--type-text-soft); }
-
-.palette-item .type-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
+.fab-palette-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
-.palette-item .type-dot[data-type="entity-schema"] { background: var(--type-schema); }
-.palette-item .type-dot[data-type="api-endpoint"] { background: var(--type-api); }
-.palette-item .type-dot[data-type="sequence-diagram"] { background: var(--type-diagram); }
-.palette-item .type-dot[data-type="text-block"] { background: var(--type-text); }
+.fab-palette-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.fab-palette-name {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.fab-palette-desc {
+  font-size: var(--text-sm);
+  color: var(--ink-tertiary);
+  line-height: 1.3;
+}
 
 /* ============================================
    Canvas — The Document
@@ -974,26 +1019,6 @@ body {
     background: var(--overlay);
   }
 
-  .sidebar {
-    width: 56px;
-    padding: var(--sp-3) var(--sp-2);
-  }
-
-  .sidebar-label { display: none; }
-
-  .palette-item {
-    justify-content: center;
-    padding: var(--sp-2);
-  }
-
-  .palette-item span:not(.type-dot) { display: none; }
-
-  .palette-item .type-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-  }
-
   .canvas-area {
     padding: var(--sp-5) var(--sp-3);
   }
@@ -1038,39 +1063,16 @@ body {
     flex-direction: column;
   }
 
-  /* Sidebar becomes horizontal strip */
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding: var(--sp-2) var(--sp-3);
-    overflow-x: auto;
-    overflow-y: hidden;
-    flex-shrink: 0;
+  /* FAB adjusts for mobile */
+  .fab-container {
+    bottom: var(--sp-4);
+    right: var(--sp-4);
   }
 
-  .sidebar-label { display: none; }
-
-  .palette-items {
-    flex-direction: row;
-    gap: var(--sp-1);
+  .fab {
+    width: 48px;
+    height: 48px;
   }
-
-  .palette-item {
-    padding: var(--sp-1) var(--sp-3);
-    white-space: nowrap;
-    font-size: var(--text-sm);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    background: var(--surface-elevated);
-  }
-
-  .palette-item .type-dot {
-    width: 6px;
-    height: 6px;
-  }
-
-  .palette-item span:not(.type-dot) { display: inline; }
 
   /* Canvas fills remaining space */
   .canvas-area {

@@ -67,11 +67,6 @@ export function EditorLayout() {
           <div className="file-tree-backdrop" onClick={() => setShowFileTree(false)} />
         )}
 
-        <ComponentPalette
-          components={editor.palette}
-          onAdd={editor.addComponent}
-        />
-
         <DocumentCanvas
           title={editor.document.title}
           instances={editor.document.components}
@@ -94,6 +89,11 @@ export function EditorLayout() {
           />
         )}
       </div>
+
+      <ComponentPalette
+        components={editor.palette}
+        onAdd={editor.addComponent}
+      />
     </div>
   )
 }
