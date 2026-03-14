@@ -37,10 +37,10 @@ Each type has a solid color, a soft tint (5% for backgrounds), and a mid tint (1
 
 | Type | Solid | Soft | Mid |
 |---|---|---|---|
-| Data Model | `--type-schema: #8b5cf6` | `rgba(..., 0.05)` | `rgba(..., 0.12)` |
-| API Endpoint | `--type-api: #06b6d4` | `rgba(..., 0.05)` | `rgba(..., 0.12)` |
-| Flow Diagram | `--type-diagram: #f59e0b` | `rgba(..., 0.05)` | `rgba(..., 0.12)` |
-| Text | `--type-text: #64748b` | `rgba(..., 0.04)` | `rgba(..., 0.10)` |
+| Data Model | `--type-schema: #7c3aed` | `rgba(..., 0.06)` | `rgba(..., 0.14)` |
+| API Endpoint | `--type-api: #0891b2` | `rgba(..., 0.06)` | `rgba(..., 0.14)` |
+| Flow Diagram | `--type-diagram: #d97706` | `rgba(..., 0.06)` | `rgba(..., 0.14)` |
+| Text | `--type-text: #475569` | `rgba(..., 0.05)` | `rgba(..., 0.12)` |
 
 ## Depth Strategy
 
@@ -49,7 +49,7 @@ Each type has a solid color, a soft tint (5% for backgrounds), and a mid tint (1
 - **Borders:** 3 tiers — `0.05` soft, `0.08` standard, `0.15` emphasis
 - **Page shadow:** `--shadow-page` — 4-layer shadow for the paper-on-desk metaphor
 - **FAB shadow:** Layered `0 2px 8px` + `0 6px 20px` for lift
-- **Selected blocks:** `0 0 0 3px var(--blueprint-soft)` focus ring
+- **Selected blocks:** `0 0 0 3px rgba(59,130,246,0.15)` focus ring with solid `--blueprint` border
 - **Drawer/sheet:** Directional shadows for overlays
 
 ## Surfaces
@@ -76,7 +76,7 @@ Two temperature zones:
 | `--text-sm` | 12px | 15 | Labels, captions, small UI text |
 | `--text-base` | 14px | 20 | Body text, form inputs, default |
 | `--text-md` | 16px | 3 | Entity names, insert buttons |
-| `--text-lg` | 20px | 2 | Page title, empty state heading |
+| `--text-lg` | 22px | 3 | Page title, empty state heading |
 
 Each step is a 2px jump. Nothing below 12px (mobile readability). Use font-weight and color for secondary differentiation, not sub-pixel size differences.
 
@@ -84,11 +84,11 @@ Each step is a 2px jump. Nothing below 12px (mobile readability). Use font-weigh
 
 - `500` — body text, buttons
 - `600` — labels, headings, type badges
-- `700` — method badges (GET, POST, etc.)
+- `700` — method badges (GET, POST, etc.), logo
 
 ### Tracking
 
-One token: `--tracking-wide: 0.6px` — used on all uppercase labels. Logo gets inline `-0.5px` (one-off).
+Two tokens: `--tracking-wide: 0.6px` (uppercase labels), `--tracking-mono: 0.3px` (code, badges). Logo gets inline `-0.5px` (one-off).
 
 ## Spacing
 
@@ -131,7 +131,7 @@ The document canvas is styled as a real page on a desk: sharp corners, 4-layer s
 
 ## Layout
 
-- **Header:** Logo left, document title centered (editable), actions right. 52px height.
+- **Header:** Logo left (`--text-md`, weight 700, ink), document title centered (editable, `--text-md`, weight 600), actions right. 52px height.
 - **File tree:** Slide-in drawer (hamburger toggle in header). 200px desktop, 240px mobile.
 - **Canvas:** Centered document (max-width 680px) on workspace background. Blocks stack vertically with insert gaps between them.
 - **FAB:** Floating action button (bottom-right) opens a popover palette with block names + descriptions. Replaces permanent sidebar.
@@ -142,9 +142,9 @@ The document canvas is styled as a real page on a desk: sharp corners, 4-layer s
 
 | Pattern | Background | Border | Radius | Padding |
 |---|---|---|---|---|
-| Primary (Publish) | `--ink` | none | `--radius-md` | `sp-1 / sp-4` |
+| Primary (Publish) | `--blueprint` | none | `--radius-md` | `sp-1 / sp-4` |
 | Danger (Remove) | transparent | `1px --danger` | `--radius-md` | `sp-2` |
-| FAB | `--ink` | none | 50% (circle) | — (52×52) |
+| FAB | `--blueprint` | none | 50% (circle) | — (52×52) |
 | Ghost (insert pills) | `--surface-elevated` | `1px --border` | 100px | `sp-1 / sp-3` |
 
 ## Responsive Breakpoints
@@ -157,9 +157,13 @@ The document canvas is styled as a real page on a desk: sharp corners, 4-layer s
 
 ## Transitions
 
-All 18 transitions use `var(--duration): 150ms` and `var(--ease): cubic-bezier(0.25, 0.1, 0.25, 1)`. Two animations:
+All 18 transitions use `var(--duration): 150ms` and `var(--ease): cubic-bezier(0.25, 0.1, 0.25, 1)`. Six keyframe animations:
 - `fabPaletteIn` — 150ms fade-up for FAB popover
 - `insertPaletteIn` — 150ms fade-up for inline insert palette
+- `blockIn` — 200ms fade-up for new block entry
+- `backdropFadeIn` — 200ms opacity for overlays
+- `panelSlideIn` — 200ms slide-right for property panel (desktop)
+- `sheetSlideUp` — 250ms slide-up for property panel (mobile bottom sheet)
 
 ## Key Decisions
 
