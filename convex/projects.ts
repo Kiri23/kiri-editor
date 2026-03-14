@@ -8,6 +8,22 @@ export const list = query({
   },
 })
 
+export const getOrCreate = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const existing = await ctx.db.query('projects').first()
+    if (existing) return existing._id
+
+    return await ctx.db.insert('projects', {
+      name: 'My Documentation',
+      productType: 'doc-editor',
+      repoOwner: '',
+      repoName: '',
+      createdBy: 'local-user',
+    })
+  },
+})
+
 export const create = mutation({
   args: {
     name: v.string(),
@@ -18,7 +34,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     return await ctx.db.insert('projects', {
       ...args,
-      createdBy: 'local-user', // TODO: replace with Clerk auth
+      createdBy: 'local-user',
     })
   },
 })

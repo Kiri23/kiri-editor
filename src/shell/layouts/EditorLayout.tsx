@@ -6,6 +6,20 @@ import { useDocEditor } from '../../hooks/useDocEditor'
 export function EditorLayout() {
   const editor = useDocEditor()
 
+  if (editor.isLoading) {
+    return (
+      <div className="editor-layout">
+        <div className="canvas-area">
+          <div className="document-canvas">
+            <div className="empty-canvas">
+              <p>Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="editor-layout">
       <header className="editor-header">
