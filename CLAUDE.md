@@ -72,6 +72,40 @@ GitHub:     .md files, YAML components, versions (branches), publishing
 Docsify:    viewer (reads GitHub raw URLs, zero-build, separate deploy)
 ```
 
+## Development Setup (Termux)
+
+This project lives in **two locations** due to Android shared storage limitations:
+
+| Location | Purpose | Why |
+|---|---|---|
+| `~/kiri-editor/` | **Development** — `npm install`, `npm run dev`, build | Termux internal storage has execute permissions for binaries (esbuild, etc.) |
+| `~/Code/kiri-editor/` | **Git** — commits, pushes | Shared storage (`~/Code/` → `/storage/emulated/0/Documents/Code/`), visible to other apps |
+
+**Android shared storage cannot execute binaries or create symlinks**, so `npm install` fails there. All development happens in `~/kiri-editor/`, then files are synced to `~/Code/kiri-editor/` for git.
+
+### Sync & Push Workflow
+
+After making changes in `~/kiri-editor/`:
+
+```bash
+# Sync source files (never sync node_modules or dist)
+cp -r ~/kiri-editor/src/* ~/Code/kiri-editor/src/
+cp -r ~/kiri-editor/convex/* ~/Code/kiri-editor/convex/
+# Add any new root files too (package.json, etc.)
+
+# Commit and push from shared storage
+cd ~/Code/kiri-editor && git add . && git commit -m "message" && git push
+```
+
+### Running the dev server
+
+```bash
+cd ~/kiri-editor && npx vite --host
+# Opens at http://localhost:5173
+```
+
+Convex backend runs in the cloud (already deployed). Run `npx convex dev --once` after changing convex/ files.
+
 ## Related Projects
 
 - DocsifyTemplate: https://github.com/Kiri23/DocsifyTemplate (viewer)
