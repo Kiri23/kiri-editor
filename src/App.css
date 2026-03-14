@@ -103,6 +103,7 @@
 
   /* Typography — letter spacing */
   --tracking-wide: 0.6px;
+  --tracking-mono: 0.3px;
 
   /* Transitions */
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -235,6 +236,7 @@ body {
 }
 
 .publish-btn:hover { background: var(--ink-secondary); }
+.publish-btn:active { transform: scale(0.97); }
 
 .editor-body {
   display: flex;
@@ -415,12 +417,20 @@ body {
   transform: scale(1.05);
 }
 
+.fab:active {
+  transform: scale(0.95);
+}
+
 .fab-open {
   transform: rotate(45deg);
 }
 
 .fab-open:hover {
   transform: rotate(45deg) scale(1.05);
+}
+
+.fab-open:active {
+  transform: rotate(45deg) scale(0.95);
 }
 
 .fab-backdrop {
@@ -542,7 +552,11 @@ body {
 .block-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
+}
+
+.block-list-end {
+  height: var(--sp-8);
+  flex-shrink: 0;
 }
 
 .empty-canvas {
@@ -703,6 +717,10 @@ body {
   background: var(--ink-secondary);
 }
 
+.empty-cta:active {
+  transform: scale(0.97);
+}
+
 /* Insert line — appears between blocks */
 .insert-line {
   display: flex;
@@ -765,7 +783,6 @@ body {
   background: var(--border);
 }
 
-
 /* --- Insert palette: inline mini picker --- */
 .insert-palette {
   display: flex;
@@ -820,6 +837,17 @@ body {
   background: var(--surface-elevated);
   cursor: pointer;
   transition: all var(--duration) var(--ease);
+  animation: blockIn 200ms var(--ease);
+}
+
+@keyframes blockIn {
+  from { opacity: 0; transform: translateY(var(--sp-2)); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .component-block:hover {
@@ -908,7 +936,7 @@ body {
   font-size: var(--text-sm);
   font-weight: 700;
   color: var(--surface-elevated);
-  letter-spacing: 0.3px;
+  letter-spacing: var(--tracking-mono);
   flex-shrink: 0;
 }
 
@@ -979,7 +1007,7 @@ body {
   font-size: var(--text-sm);
   font-weight: 700;
   color: var(--surface-elevated);
-  letter-spacing: 0.3px;
+  letter-spacing: var(--tracking-mono);
 }
 
 .block-remove {
@@ -1017,6 +1045,12 @@ body {
   overflow-y: auto;
   padding: var(--sp-5);
   flex-shrink: 0;
+  animation: panelSlideIn 200ms var(--ease);
+}
+
+@keyframes panelSlideIn {
+  from { opacity: 0; transform: translateX(var(--sp-4)); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .property-panel-drag {
@@ -1066,7 +1100,7 @@ body {
 
 .field .required {
   color: var(--danger);
-  margin-left: 2px;
+  margin-left: var(--sp-1);
 }
 
 .field input,
@@ -1125,6 +1159,10 @@ body {
   background: var(--danger-soft);
 }
 
+.remove-block-btn:active {
+  transform: scale(0.98);
+}
+
 /* ============================================
    Responsive — Tablet (< 1024px)
    Sidebar collapses to icons, property panel
@@ -1159,6 +1197,7 @@ body {
     top: var(--header-height);
     z-index: 19;
     background: var(--overlay);
+    animation: backdropFadeIn 200ms var(--ease);
   }
 
   .canvas-area {
@@ -1286,6 +1325,7 @@ body {
     inset: 0;
     z-index: 9;
     background: var(--overlay);
+    animation: backdropFadeIn 200ms var(--ease);
   }
 
   .property-panel {
@@ -1302,6 +1342,12 @@ body {
     z-index: 10;
     padding: var(--sp-4);
     padding-top: var(--sp-2);
+    animation: sheetSlideUp 250ms var(--ease);
+  }
+
+  @keyframes sheetSlideUp {
+    from { opacity: 0; transform: translateY(var(--sp-8)); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .property-panel-drag {

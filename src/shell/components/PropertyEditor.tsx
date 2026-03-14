@@ -13,7 +13,13 @@ interface Props {
 export function PropertyEditor({ instance, definition, fields, onUpdate, onRemove, onClose }: Props) {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key !== 'Escape') return
+      const tag = (e.target as HTMLElement).tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        ;(e.target as HTMLElement).blur()
+        return
+      }
+      onClose()
     }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)

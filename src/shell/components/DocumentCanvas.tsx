@@ -274,6 +274,7 @@ export function DocumentCanvas({ instances, definitions, selectedId, onSelect, o
               </div>
             )
           })}
+          <div className="block-list-end" />
         </div>
       </div>
     </div>

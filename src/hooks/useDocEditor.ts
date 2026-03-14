@@ -265,7 +265,6 @@ export function useDocEditor() {
   const handlePublish = useCallback(async () => {
     persistToConvex()
     // TODO: GitHub API commit
-    console.log('Publishing...', previewHtml)
   }, [persistToConvex, previewHtml])
 
   return {
