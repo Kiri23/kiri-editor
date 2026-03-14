@@ -9,7 +9,7 @@ export function ComponentPalette({ components, onAdd }: Props) {
   return (
     <aside className="sidebar">
       <div className="sidebar-section">
-        <div className="sidebar-label">Insert Block</div>
+        <div className="sidebar-label">Blocks</div>
         <ul className="palette-items">
           {components.map(def => (
             <li key={def.id}>

@@ -30,11 +30,8 @@ export function createEditorState(doc: EditorDocument): EditorState {
   }
 }
 
-export function addComponent(
-  state: EditorState,
-  definition: ComponentDefinition,
-): EditorState {
-  const instance: ComponentInstance = {
+function createInstance(definition: ComponentDefinition): ComponentInstance {
+  return {
     id: crypto.randomUUID(),
     definitionId: definition.id,
     values: Object.fromEntries(
@@ -43,11 +40,37 @@ export function addComponent(
         .map(f => [f.key, f.defaultValue!])
     ),
   }
+}
+
+export function addComponent(
+  state: EditorState,
+  definition: ComponentDefinition,
+): EditorState {
+  const instance = createInstance(definition)
   return {
     ...state,
     document: {
       ...state.document,
       components: [...state.document.components, instance],
+    },
+    selectedComponentId: instance.id,
+    isDirty: true,
+  }
+}
+
+export function insertComponentAt(
+  state: EditorState,
+  definition: ComponentDefinition,
+  index: number,
+): EditorState {
+  const instance = createInstance(definition)
+  const components = [...state.document.components]
+  components.splice(index, 0, instance)
+  return {
+    ...state,
+    document: {
+      ...state.document,
+      components,
     },
     selectedComponentId: instance.id,
     isDirty: true,

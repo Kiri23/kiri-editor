@@ -15,7 +15,7 @@ export function EditorLayout() {
         <div className="canvas-area">
           <div className="document-canvas">
             <div className="empty-canvas">
-              <p>Loading...</p>
+              <p>Opening your document...</p>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@ export function EditorLayout() {
           placeholder="Untitled"
         />
         <div className="header-actions">
-          {editor.isDirty && <span className="dirty-indicator">Draft</span>}
+          {editor.isDirty && <span className="dirty-indicator">Unsaved</span>}
           <button className="publish-btn" onClick={editor.publish}>
             Publish
           </button>
@@ -79,6 +79,8 @@ export function EditorLayout() {
           selectedId={editor.selectedComponent?.id ?? null}
           onSelect={editor.selectComponent}
           onRemove={editor.removeComponent}
+          onAdd={editor.addComponent}
+          onInsertAt={editor.insertComponentAt}
         />
 
         {editor.selectedComponent && editor.selectedDefinition && (

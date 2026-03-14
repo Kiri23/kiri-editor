@@ -20,6 +20,7 @@ import type { ComponentDefinition } from '../models/types'
 import {
   type EditorState,
   addComponent,
+  insertComponentAt,
   createEditorState,
   removeComponent,
   selectComponent,
@@ -233,6 +234,11 @@ export function useDocEditor() {
     scheduleSave()
   }, [scheduleSave])
 
+  const handleInsertComponentAt = useCallback((def: ComponentDefinition, index: number) => {
+    setState(s => insertComponentAt(s, def, index))
+    scheduleSave()
+  }, [scheduleSave])
+
   const handleUpdateProperty = useCallback((instanceId: string, key: string, value: string | number | boolean) => {
     setState(s => updateProperty(s, instanceId, key, value))
     scheduleSave()
@@ -281,6 +287,7 @@ export function useDocEditor() {
 
     // Editor commands
     addComponent: handleAddComponent,
+    insertComponentAt: handleInsertComponentAt,
     updateProperty: handleUpdateProperty,
     removeComponent: handleRemoveComponent,
     selectComponent: handleSelectComponent,

@@ -38,7 +38,7 @@ export function PropertyEditor({ instance, definition, fields, onUpdate, onRemov
               value={String(instance.values[field.key] ?? '')}
               onChange={e => onUpdate(instance.id, field.key, e.target.value)}
             >
-              <option value="">Select...</option>
+              <option value="">Choose one...</option>
               {field.options?.map(opt => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
@@ -55,7 +55,7 @@ export function PropertyEditor({ instance, definition, fields, onUpdate, onRemov
       ))}
 
       <button className="remove-block-btn" onClick={() => onRemove(instance.id)}>
-        Remove Block
+        Remove from page
       </button>
     </div>
   )
