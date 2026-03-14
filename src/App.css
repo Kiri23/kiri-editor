@@ -103,6 +103,31 @@ body {
   flex-shrink: 0;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.files-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-tertiary);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.files-toggle:hover {
+  background: var(--control-bg);
+  color: var(--ink);
+}
+
 .editor-header .logo {
   font-size: 14px;
   font-weight: 600;
@@ -168,6 +193,13 @@ body {
    File Tree — Document navigation
    ============================================ */
 
+/* Desktop: file-tree-container is inline in the flow */
+.file-tree-container {
+  flex-shrink: 0;
+}
+
+.file-tree-backdrop { display: none; }
+
 .file-tree {
   width: 200px;
   border-right: 1px solid var(--border);
@@ -176,6 +208,7 @@ body {
   background: var(--document);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .file-tree-header {
@@ -634,7 +667,34 @@ body {
    ============================================ */
 
 @media (max-width: 1024px) {
-  .file-tree { display: none; }
+  .file-tree-container {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    bottom: 0;
+    z-index: 20;
+    transform: translateX(-100%);
+    transition: transform 250ms var(--ease);
+  }
+
+  .file-tree-container.open {
+    transform: translateX(0);
+  }
+
+  .file-tree {
+    width: 240px;
+    height: 100%;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .file-tree-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: 52px;
+    z-index: 19;
+    background: rgba(0, 0, 0, 0.2);
+  }
 
   .sidebar {
     width: 56px;
@@ -698,8 +758,6 @@ body {
   .editor-body {
     flex-direction: column;
   }
-
-  .file-tree { display: none; }
 
   /* Sidebar becomes horizontal strip */
   .sidebar {

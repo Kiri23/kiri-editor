@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { FileTree } from '../components/FileTree'
 import { ComponentPalette } from '../components/ComponentPalette'
 import { DocumentCanvas } from '../components/DocumentCanvas'
@@ -6,6 +7,7 @@ import { useDocEditor } from '../../hooks/useDocEditor'
 
 export function EditorLayout() {
   const editor = useDocEditor()
+  const [showFileTree, setShowFileTree] = useState(false)
 
   if (editor.isLoading) {
     return (
@@ -24,7 +26,18 @@ export function EditorLayout() {
   return (
     <div className="editor-layout">
       <header className="editor-header">
-        <span className="logo">Kiri</span>
+        <div className="header-left">
+          <button
+            className="files-toggle"
+            onClick={() => setShowFileTree(!showFileTree)}
+            aria-label="Toggle file tree"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <span className="logo">Kiri</span>
+        </div>
         <input
           className="doc-title"
           value={editor.document.title}
@@ -40,13 +53,19 @@ export function EditorLayout() {
       </header>
 
       <div className="editor-body">
-        <FileTree
-          documents={editor.documents}
-          activeId={editor.documentId}
-          onSelect={editor.switchDocument}
-          onCreate={editor.createNewDocument}
-          onDelete={editor.deleteDocument}
-        />
+        <div className={`file-tree-container ${showFileTree ? 'open' : ''}`}>
+          <FileTree
+            documents={editor.documents}
+            activeId={editor.documentId}
+            onSelect={(id) => { editor.switchDocument(id); setShowFileTree(false) }}
+            onCreate={editor.createNewDocument}
+            onDelete={editor.deleteDocument}
+          />
+        </div>
+
+        {showFileTree && (
+          <div className="file-tree-backdrop" onClick={() => setShowFileTree(false)} />
+        )}
 
         <ComponentPalette
           components={editor.palette}
