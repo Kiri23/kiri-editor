@@ -90,6 +90,51 @@ export const blockDisplay: Record<string, BlockDisplayConfig> = {
 }
 
 /**
+ * Register display config from an API-sourced schema.
+ * Converts declarative display fields into function-based BlockDisplayConfig.
+ */
+export function registerDisplayFromSchema(
+  id: string,
+  display: {
+    color?: string
+    layout?: string
+    icon?: string
+    summaryField?: string
+    summaryFallback?: string
+    countField?: string
+    countLabel?: string
+    badgeField?: string
+    pillsField?: string
+  },
+): void {
+  if (blockDisplay[id]) return // don't overwrite hardcoded configs
+
+  blockDisplay[id] = {
+    color: display.color ?? 'var(--type-text)',
+    layout: (display.layout as BlockDisplayConfig['layout']) ?? 'prose',
+    icon: display.icon ?? 'M3 4h10M3 8h7M3 12h9',
+    summary: (v) => String(v[display.summaryField ?? ''] ?? display.summaryFallback ?? id),
+    badge: display.badgeField
+      ? (v) => String(v[display.badgeField!] ?? '') || null
+      : undefined,
+    pills: display.pillsField
+      ? (v) => {
+          const val = String(v[display.pillsField!] ?? '')
+          return val.split(',').map(s => s.trim()).filter(Boolean)
+        }
+      : undefined,
+    count: display.countField
+      ? (v) => {
+          const val = String(v[display.countField!] ?? '')
+          if (!val.trim()) return null
+          const lines = val.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'))
+          return { label: display.countLabel ?? 'items', n: lines.length }
+        }
+      : undefined,
+  }
+}
+
+/**
  * Get display config for a block type. Falls back to a generic config.
  */
 export function getBlockDisplay(definitionId: string): BlockDisplayConfig {

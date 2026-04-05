@@ -8,7 +8,8 @@
 
 import type { ComponentDefinition } from '../types'
 
-export const docComponents: ComponentDefinition[] = [
+/** Fallback components — used when Product API is unreachable */
+export const fallbackComponents: ComponentDefinition[] = [
   {
     id: 'entity-schema',
     name: 'Data Model',

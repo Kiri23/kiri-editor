@@ -4,13 +4,13 @@
  */
 
 import type { ComponentInstance } from '../types'
-import { docComponents } from './components'
 
 function toYamlCodeFence(type: string, values: Record<string, string | number | boolean>): string {
   const lines = Object.entries(values)
     .filter(([, v]) => v !== '' && v !== undefined)
     .map(([k, v]) => `${k}: ${v}`)
-  return `\`\`\`yaml\ntype: ${type}\n${lines.join('\n')}\n\`\`\``
+  // Use component name as the code fence language — this is how DocsifyTemplate identifies them
+  return `\`\`\`${type}\n${lines.join('\n')}\n\`\`\``
 }
 
 function renderTextBlock(values: Record<string, string | number | boolean>): string {
@@ -22,9 +22,6 @@ function renderTextBlock(values: Record<string, string | number | boolean>): str
 
 export function renderDocument(title: string, components: ComponentInstance[]): string {
   const sections = components.map(instance => {
-    const def = docComponents.find(d => d.id === instance.definitionId)
-    if (!def) return `<!-- Unknown component: ${instance.definitionId} -->`
-
     if (instance.definitionId === 'text-block') {
       return renderTextBlock(instance.values)
     }

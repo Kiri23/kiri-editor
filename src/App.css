@@ -238,6 +238,48 @@ body {
 .publish-btn:hover { background: var(--blueprint-hover); }
 .publish-btn:active { transform: scale(0.97); }
 
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--document);
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+.mode-toggle:hover {
+  background: var(--document-hover);
+  color: var(--ink);
+  border-color: var(--blueprint-border);
+}
+.mode-toggle.active {
+  background: var(--blueprint-soft);
+  color: var(--blueprint);
+  border-color: var(--blueprint-border);
+}
+
+.preview-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: var(--radius-md);
+  background: #1a1a2e;
+}
+
+.preview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--ink-tertiary);
+  font-size: var(--text-base);
+}
+
 .editor-body {
   display: flex;
   flex: 1;

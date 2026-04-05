@@ -3,6 +3,7 @@ import { FileTree } from '../components/FileTree'
 import { ComponentPalette } from '../components/ComponentPalette'
 import { DocumentCanvas } from '../components/DocumentCanvas'
 import { PropertyEditor } from '../components/PropertyEditor'
+import { Preview } from '../components/Preview'
 import { useDocEditor } from '../../hooks/useDocEditor'
 
 export function EditorLayout() {
@@ -45,6 +46,22 @@ export function EditorLayout() {
           placeholder="Untitled"
         />
         <div className="header-actions">
+          <button
+            className={`mode-toggle ${editor.previewMode === 'preview' ? 'active' : ''}`}
+            onClick={() => editor.setPreviewMode(editor.previewMode === 'write' ? 'preview' : 'write')}
+            aria-label="Toggle preview"
+          >
+            {editor.previewMode === 'write' ? (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" strokeWidth="1.5"/>
+                <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 4h10M3 8h7M3 12h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            )}
+          </button>
           {editor.isDirty && <span className="dirty-indicator">Unsaved</span>}
           <button className="publish-btn" onClick={editor.publish}>
             Publish
@@ -67,33 +84,46 @@ export function EditorLayout() {
           <div className="file-tree-backdrop" onClick={() => setShowFileTree(false)} />
         )}
 
-        <DocumentCanvas
-          title={editor.document.title}
-          instances={editor.document.components}
-          definitions={editor.palette}
-          selectedId={editor.selectedComponent?.id ?? null}
-          onSelect={editor.selectComponent}
-          onRemove={editor.removeComponent}
-          onAdd={editor.addComponent}
-          onInsertAt={editor.insertComponentAt}
-        />
+        {editor.previewMode === 'write' ? (
+          <>
+            <DocumentCanvas
+              title={editor.document.title}
+              instances={editor.document.components}
+              definitions={editor.palette}
+              selectedId={editor.selectedComponent?.id ?? null}
+              onSelect={editor.selectComponent}
+              onRemove={editor.removeComponent}
+              onAdd={editor.addComponent}
+              onInsertAt={editor.insertComponentAt}
+            />
 
-        {editor.selectedComponent && editor.selectedDefinition && (
-          <PropertyEditor
-            instance={editor.selectedComponent}
-            definition={editor.selectedDefinition}
-            fields={editor.selectedDefinition.fields}
-            onUpdate={editor.updateProperty}
-            onRemove={editor.removeComponent}
-            onClose={() => editor.selectComponent(null)}
+            {editor.selectedComponent && editor.selectedDefinition && (
+              <PropertyEditor
+                instance={editor.selectedComponent}
+                definition={editor.selectedDefinition}
+                fields={editor.selectedDefinition.fields}
+                onUpdate={editor.updateProperty}
+                onRemove={editor.removeComponent}
+                onClose={() => editor.selectComponent(null)}
+              />
+            )}
+          </>
+        ) : (
+          <Preview
+            html={editor.renderedHtml}
+            isRendering={editor.isRendering}
+            manifest={editor.manifest}
+            productHost={import.meta.env.VITE_PRODUCT_API_HOST ?? ''}
           />
         )}
       </div>
 
-      <ComponentPalette
-        components={editor.palette}
-        onAdd={editor.addComponent}
-      />
+      {editor.previewMode === 'write' && (
+        <ComponentPalette
+          components={editor.palette}
+          onAdd={editor.addComponent}
+        />
+      )}
     </div>
   )
 }

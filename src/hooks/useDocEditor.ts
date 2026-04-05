@@ -26,8 +26,10 @@ import {
   selectComponent,
   updateProperty,
 } from '../viewmodels/BuilderPalette'
-import { docComponents } from '../models/doc-editor/components'
+import { fallbackComponents } from '../models/doc-editor/components'
 import { renderDocument } from '../models/doc-editor/renderer'
+import { registerDisplayFromSchema } from '../models/doc-editor/block-display'
+import { fetchComponents, renderMarkdown, fetchManifest, type ProductManifest } from '../services/product-api'
 
 function toSlug(title: string): string {
   return title
@@ -210,13 +212,51 @@ export function useDocEditor() {
     }
   }, [documents, documentId, removeDocument])
 
-  // --- ViewModel + palette ---
-  const palette = useMemo(() => docComponents, [])
+  // --- Dynamic palette from Product API ---
+  const [palette, setPalette] = useState<ComponentDefinition[]>(fallbackComponents)
+  const [previewMode, setPreviewMode] = useState<'write' | 'preview'>('write')
+  const [renderedHtml, setRenderedHtml] = useState('')
+  const [isRendering, setIsRendering] = useState(false)
+  const [manifest, setManifest] = useState<ProductManifest | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadProductData() {
+      const [components, m] = await Promise.all([fetchComponents(), fetchManifest()])
+      if (cancelled) return
+      if (components.length > 0) {
+        setPalette(components)
+        // Register display configs from API schemas
+        for (const comp of components) {
+          const display = (comp as ComponentDefinition & { display?: Record<string, string> }).display
+          if (display) registerDisplayFromSchema(comp.id, display)
+        }
+      }
+      if (m) setManifest(m)
+    }
+    loadProductData()
+    return () => { cancelled = true }
+  }, [])
 
   const previewHtml = useMemo(
     () => renderDocument(state.document.title, state.document.components),
     [state.document.title, state.document.components]
   )
+
+  // Render via Product API when switching to preview mode
+  useEffect(() => {
+    if (previewMode !== 'preview') return
+    let cancelled = false
+    setIsRendering(true)
+    const markdown = renderDocument(state.document.title, state.document.components)
+    renderMarkdown(markdown).then(html => {
+      if (!cancelled) {
+        setRenderedHtml(html)
+        setIsRendering(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [previewMode, state.document.title, state.document.components])
 
   const selectedComponent = useMemo(() => {
     if (!state.selectedComponentId) return null
@@ -278,6 +318,13 @@ export function useDocEditor() {
     isLoading,
     previewHtml,
     palette,
+
+    // Preview mode
+    previewMode,
+    setPreviewMode,
+    renderedHtml,
+    isRendering,
+    manifest,
 
     // Document management
     switchDocument,
