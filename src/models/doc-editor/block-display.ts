@@ -19,13 +19,13 @@ export interface BlockDisplayConfig {
   /** SVG icon path (16x16 viewBox) */
   icon: string
   /** How to extract the summary line from instance values */
-  summary: (values: Record<string, string | number | boolean>) => string
+  summary: (values: Record<string, unknown>) => string
   /** Optional: extract a badge label (e.g., HTTP method) */
-  badge?: (values: Record<string, string | number | boolean>) => string | null
+  badge?: (values: Record<string, unknown>) => string | null
   /** Optional: extract a list of pills (e.g., participants) */
-  pills?: (values: Record<string, string | number | boolean>) => string[]
+  pills?: (values: Record<string, unknown>) => string[]
   /** Optional: extract a count indicator (e.g., field count) */
-  count?: (values: Record<string, string | number | boolean>) => { label: string; n: number } | null
+  count?: (values: Record<string, unknown>) => { label: string; n: number } | null
 }
 
 const METHOD_COLORS: Record<string, string> = {
@@ -70,9 +70,11 @@ export const blockDisplay: Record<string, BlockDisplayConfig> = {
     icon: 'M3 2h10v12H3zM6 5h4M6 8h4M6 11h3',
     summary: (v) => String(v.name ?? 'Unnamed model'),
     count: (v) => {
-      const fields = String(v.fields ?? '')
-      if (!fields.trim()) return null
-      const lines = fields.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'))
+      const fields = v.fields
+      if (Array.isArray(fields)) return fields.length > 0 ? { label: 'properties', n: fields.length } : null
+      const str = String(fields ?? '')
+      if (!str.trim()) return null
+      const lines = str.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'))
       return { label: 'properties', n: lines.length }
     },
   },

@@ -270,6 +270,106 @@ body {
   background: #1a1a2e;
 }
 
+/* --- Array Sub-Editor --- */
+
+.array-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.array-item {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--document);
+}
+
+.array-item-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.array-item-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.array-item-field label {
+  font-size: var(--text-sm);
+  color: var(--ink-tertiary);
+  font-weight: 500;
+}
+
+.array-item-field input,
+.array-item-field select,
+.array-item-field textarea {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+}
+
+.array-item-remove {
+  align-self: flex-start;
+  padding: var(--sp-1);
+  border: none;
+  background: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.array-item-remove:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.array-add-btn {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: var(--sp-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--blueprint);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+.array-add-btn:hover {
+  background: var(--blueprint-soft);
+  border-color: var(--blueprint-border);
+}
+
+.array-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.array-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.object-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--document);
+}
+
 .preview-loading {
   display: flex;
   align-items: center;

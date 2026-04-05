@@ -9,7 +9,7 @@ import type { ComponentDefinition, ComponentField, ComponentInstance, EditorDocu
 export interface BuilderPalette {
   getComponents(): ComponentDefinition[]
   getProperties(instanceId: string): ComponentField[]
-  updateProperty(instanceId: string, key: string, value: string | number | boolean): void
+  updateProperty(instanceId: string, key: string, value: unknown): void
   preview(): string
   publish(): Promise<void>
 }
@@ -81,7 +81,7 @@ export function updateProperty(
   state: EditorState,
   instanceId: string,
   key: string,
-  value: string | number | boolean,
+  value: unknown,
 ): EditorState {
   return {
     ...state,

@@ -4,12 +4,14 @@
  */
 
 import type { ComponentDefinition } from '../models/types'
+import { parseJsonSchema } from './schema-parser'
 
 export async function fetchComponents(): Promise<ComponentDefinition[]> {
   try {
     const res = await fetch('/api/components')
     if (!res.ok) return []
-    return res.json()
+    const schemas = await res.json()
+    return schemas.map(parseJsonSchema)
   } catch {
     return []
   }

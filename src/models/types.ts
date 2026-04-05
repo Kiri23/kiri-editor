@@ -6,10 +6,12 @@
 export interface ComponentField {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'select' | 'number' | 'boolean'
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
   required?: boolean
-  options?: string[]
-  defaultValue?: string | number | boolean
+  enum?: string[]
+  default?: unknown
+  widget?: 'textarea'
+  items?: ComponentField[]  // sub-fields for array items or object properties
 }
 
 export interface ComponentDefinition {
@@ -18,12 +20,13 @@ export interface ComponentDefinition {
   description: string
   icon: string
   fields: ComponentField[]
+  display?: Record<string, string>
 }
 
 export interface ComponentInstance {
   id: string
   definitionId: string
-  values: Record<string, string | number | boolean>
+  values: Record<string, unknown>
 }
 
 export interface EditorDocument {

@@ -279,7 +279,7 @@ export function useDocEditor() {
     scheduleSave()
   }, [scheduleSave])
 
-  const handleUpdateProperty = useCallback((instanceId: string, key: string, value: string | number | boolean) => {
+  const handleUpdateProperty = useCallback((instanceId: string, key: string, value: unknown) => {
     setState(s => updateProperty(s, instanceId, key, value))
     scheduleSave()
   }, [scheduleSave])
