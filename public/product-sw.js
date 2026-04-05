@@ -38,7 +38,7 @@ self.addEventListener('message', (event) => {
     renderLoading = fetchAndCacheAssets(productHost).then(() => {
       renderLoading = null;
     }).catch(e => {
-      console.error('[product-sw] Configuration failed:', e);
+      // Configuration failed
       renderLoading = null;
     });
   }
@@ -72,7 +72,7 @@ async function fetchAndCacheAssets(productHost) {
   for (const asset of manifest.renderAssets) {
     const r = await fetch(`${productHost}/${asset}`);
     if (!r.ok) {
-      console.warn(`[product-sw] Failed to load ${asset}: ${r.status}`);
+      // Asset failed to load — skip it
       continue;
     }
     const code = await r.text();
@@ -93,8 +93,7 @@ async function fetchAndCacheAssets(productHost) {
     new Response(JSON.stringify(manifest), { headers: { 'Content-Type': 'application/json' } })
   );
 
-  console.log('[product-sw] Product assets loaded:', manifest.product, manifest.version);
-  reportStatus('ready', `marked: ${typeof self.marked}, jsyaml: ${typeof self.jsyaml}, __CREngine: ${typeof self.__CREngine}`);
+  reportStatus('ready');
 }
 
 /**
@@ -106,7 +105,7 @@ function evalAssets(assetCodes) {
     try {
       new Function(code).call(self);
     } catch (e) {
-      console.error(`[product-sw] Error evaluating ${asset}:`, e);
+      // Evaluation error — component will be unavailable
     }
   }
   renderReady = true;
@@ -128,10 +127,10 @@ async function ensureRenderReady() {
     try {
       const assetCodes = await cached.json();
       evalAssets(assetCodes);
-      console.log('[product-sw] Render assets restored from cache');
+      // Restored from cache
       return true;
     } catch (e) {
-      console.error('[product-sw] Failed to restore render assets:', e);
+      // Failed to restore
     }
   }
 
@@ -163,9 +162,9 @@ async function ensureRenderReady() {
   return false;
 }
 
-function reportStatus(status, details) {
+function reportStatus(status) {
   self.clients.matchAll().then(clients => {
-    clients.forEach(c => c.postMessage({ type: 'SW_STATUS', status, details }));
+    clients.forEach(c => c.postMessage({ type: 'SW_STATUS', status }));
   });
 }
 

@@ -51,7 +51,7 @@ export function Preview({ html, isRendering, manifest, productHost }: Props) {
       srcDoc={srcdoc}
       className="preview-frame"
       title="Document preview"
-      sandbox="allow-scripts"
+      sandbox="allow-scripts allow-same-origin"
     />
   )
 }
