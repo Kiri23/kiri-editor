@@ -165,7 +165,10 @@ export const getFileContent = action({
     if (!res.ok) throw new Error(`GitHub API error: ${res.status}`)
 
     const data: any = await res.json()
-    const content: string = atob((data.content as string).replace(/\n/g, ''))
+    // Decode base64 with proper UTF-8 handling
+    const raw = atob((data.content as string).replace(/\n/g, ''))
+    const bytes = Uint8Array.from(raw, c => c.charCodeAt(0))
+    const content: string = new TextDecoder().decode(bytes)
     return { content, sha: data.sha, path: data.path }
   },
 })

@@ -109,14 +109,17 @@ export function parseMarkdown(markdown: string): ParsedDocument {
   let title = ''
   const components: ComponentInstance[] = []
 
+  // Strip frontmatter (---\n...\n---)
+  let stripped = markdown.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '').trim()
+
   // Extract title from first # heading
-  const titleMatch = markdown.match(/^# (.+)$/m)
+  const titleMatch = stripped.match(/^# (.+)$/m)
   if (titleMatch) {
     title = titleMatch[1].trim()
   }
 
   // Remove the title line for processing
-  let content = markdown.replace(/^# .+$/m, '').trim()
+  let content = stripped.replace(/^# .+$/m, '').trim()
 
   // Find all code fences and split content around them
   let lastIndex = 0
