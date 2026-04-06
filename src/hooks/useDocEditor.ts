@@ -28,6 +28,7 @@ import {
 } from '../viewmodels/BuilderPalette'
 import { fallbackComponents } from '../models/doc-editor/components'
 import { renderDocument } from '../models/doc-editor/renderer'
+import { parseMarkdown } from '../models/doc-editor/parser'
 import { registerDisplayFromSchema } from '../models/doc-editor/block-display'
 import { fetchComponents, renderMarkdown, fetchManifest, type ProductManifest } from '../services/product-api'
 
@@ -307,6 +308,15 @@ export function useDocEditor() {
     // TODO: GitHub API commit
   }, [persistToConvex, previewHtml])
 
+  const loadFromMarkdown = useCallback((markdown: string, docId?: string) => {
+    const parsed = parseMarkdown(markdown)
+    setState(createEditorState({
+      id: docId ?? crypto.randomUUID(),
+      title: parsed.title,
+      components: parsed.components,
+    }))
+  }, [])
+
   return {
     // State
     document: state.document,
@@ -330,6 +340,9 @@ export function useDocEditor() {
     switchDocument,
     createNewDocument,
     deleteDocument,
+
+    // GitHub integration
+    loadFromMarkdown,
 
     // Editor commands
     addComponent: handleAddComponent,

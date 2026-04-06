@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FileTree } from '../components/FileTree'
 import { GitHubFileTree } from '../components/GitHubFileTree'
 import { ComponentPalette } from '../components/ComponentPalette'
@@ -6,6 +6,7 @@ import { DocumentCanvas } from '../components/DocumentCanvas'
 import { PropertyEditor } from '../components/PropertyEditor'
 import { Preview } from '../components/Preview'
 import { useDocEditor } from '../../hooks/useDocEditor'
+import { useGitHub } from '../../hooks/useGitHub'
 
 interface Props {
   workspace: { owner: string; repo: string }
@@ -14,10 +15,40 @@ interface Props {
 
 export function EditorLayout({ workspace, onBack }: Props) {
   const editor = useDocEditor()
+  const github = useGitHub()
   const [showFileTree, setShowFileTree] = useState(false)
   const [activeGitHubPath, setActiveGitHubPath] = useState<string | null>(null)
+  const [fileSha, setFileSha] = useState<string | null>(null)
+  const [isLoadingFile, setIsLoadingFile] = useState(false)
 
-  if (editor.isLoading) {
+  const handleSelectFile = useCallback(async (path: string) => {
+    setActiveGitHubPath(path)
+    setShowFileTree(false)
+    setIsLoadingFile(true)
+    try {
+      const file = await github.getFile(workspace.owner, workspace.repo, path)
+      editor.loadFromMarkdown(file.content, path)
+      setFileSha(file.sha)
+    } finally {
+      setIsLoadingFile(false)
+    }
+  }, [github, workspace, editor])
+
+  const handlePublish = useCallback(async () => {
+    if (!activeGitHubPath) return
+    const markdown = editor.previewHtml // raw markdown from renderDocument()
+    const result = await github.commitFile(
+      workspace.owner,
+      workspace.repo,
+      activeGitHubPath,
+      markdown,
+      `Update ${activeGitHubPath.split('/').pop()}`,
+      fileSha ?? undefined,
+    )
+    setFileSha(result.sha)
+  }, [activeGitHubPath, editor.previewHtml, github, workspace, fileSha])
+
+  if (editor.isLoading || isLoadingFile) {
     return (
       <div className="editor-layout">
         <div className="canvas-area">
@@ -75,8 +106,12 @@ export function EditorLayout({ workspace, onBack }: Props) {
             )}
           </button>
           {editor.isDirty && <span className="dirty-indicator">Unsaved</span>}
-          <button className="publish-btn" onClick={editor.publish}>
-            Publish
+          <button
+            className="publish-btn"
+            onClick={activeGitHubPath ? handlePublish : editor.publish}
+            disabled={!activeGitHubPath && !editor.isDirty}
+          >
+            {activeGitHubPath ? 'Commit' : 'Publish'}
           </button>
         </div>
       </header>
@@ -88,7 +123,7 @@ export function EditorLayout({ workspace, onBack }: Props) {
               owner={workspace.owner}
               repo={workspace.repo}
               activePath={activeGitHubPath}
-              onSelect={(path) => { setActiveGitHubPath(path); setShowFileTree(false) }}
+              onSelect={handleSelectFile}
             />
           ) : (
             <FileTree
