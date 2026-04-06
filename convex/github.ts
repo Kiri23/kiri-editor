@@ -24,7 +24,6 @@ export const saveToken = mutation({
     avatarUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Upsert: delete existing token for this user
     const existing = await ctx.db
       .query('githubTokens')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
@@ -51,43 +50,35 @@ export const removeToken = mutation({
 
 // --- Actions (server-side, can make external HTTP calls) ---
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export const exchangeCode = action({
   args: { code: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ username: string; avatarUrl: string }> => {
     const clientId = process.env.GITHUB_CLIENT_ID
     const clientSecret = process.env.GITHUB_CLIENT_SECRET
     if (!clientId || !clientSecret) {
-      throw new Error('GitHub OAuth not configured — set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET')
+      throw new Error('GitHub OAuth not configured')
     }
 
-    // Exchange code for access token
     const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code: args.code,
-      }),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code: args.code }),
     })
-    const tokenData = await tokenRes.json()
+    const tokenData: any = await tokenRes.json()
 
     if (tokenData.error) {
       throw new Error(`GitHub OAuth error: ${tokenData.error_description ?? tokenData.error}`)
     }
 
-    const accessToken = tokenData.access_token as string
+    const accessToken: string = tokenData.access_token
 
-    // Fetch user info
     const userRes = await fetch('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
-    const userData = await userRes.json()
+    const userData: any = await userRes.json()
 
-    // Save token in DB
     await ctx.runMutation(api.github.saveToken, {
       userId: 'local-user',
       accessToken,
@@ -95,33 +86,28 @@ export const exchangeCode = action({
       avatarUrl: userData.avatar_url,
     })
 
-    return {
-      username: userData.login,
-      avatarUrl: userData.avatar_url,
-    }
+    return { username: userData.login, avatarUrl: userData.avatar_url }
   },
 })
 
-// --- GitHub API helpers (actions for server-side calls) ---
-
 export const listRepos = action({
   args: { userId: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Array<{ owner: string; name: string; fullName: string; description: string; private: boolean; updatedAt: string }>> => {
     const token = await ctx.runQuery(api.github.getToken, { userId: args.userId })
     if (!token) throw new Error('GitHub not connected')
 
     const res = await fetch('https://api.github.com/user/repos?per_page=100&sort=updated', {
       headers: { Authorization: `Bearer ${token.accessToken}` },
     })
-    const repos = await res.json()
+    const repos: any[] = await res.json()
 
-    return repos.map((r: Record<string, unknown>) => ({
-      owner: (r.owner as Record<string, unknown>)?.login,
-      name: r.name,
-      fullName: r.full_name,
-      description: r.description,
-      private: r.private,
-      updatedAt: r.updated_at,
+    return repos.map((r: any) => ({
+      owner: r.owner?.login ?? '',
+      name: r.name ?? '',
+      fullName: r.full_name ?? '',
+      description: r.description ?? '',
+      private: !!r.private,
+      updatedAt: r.updated_at ?? '',
     }))
   },
 })
@@ -133,7 +119,7 @@ export const getRepoTree = action({
     repo: v.string(),
     path: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Array<{ name: string; path: string; type: string; sha: string }>> => {
     const token = await ctx.runQuery(api.github.getToken, { userId: args.userId })
     if (!token) throw new Error('GitHub not connected')
 
@@ -148,14 +134,14 @@ export const getRepoTree = action({
       throw new Error(`GitHub API error: ${res.status}`)
     }
 
-    const items = await res.json()
-    if (!Array.isArray(items)) return [] // single file, not directory
+    const items: any = await res.json()
+    if (!Array.isArray(items)) return []
 
-    return items.map((item: Record<string, unknown>) => ({
-      name: item.name,
-      path: item.path,
-      type: item.type, // "file" or "dir"
-      sha: item.sha,
+    return items.map((item: any) => ({
+      name: item.name ?? '',
+      path: item.path ?? '',
+      type: item.type ?? 'file',
+      sha: item.sha ?? '',
     }))
   },
 })
@@ -167,7 +153,7 @@ export const getFileContent = action({
     repo: v.string(),
     path: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ content: string; sha: string; path: string }> => {
     const token = await ctx.runQuery(api.github.getToken, { userId: args.userId })
     if (!token) throw new Error('GitHub not connected')
 
@@ -178,9 +164,8 @@ export const getFileContent = action({
 
     if (!res.ok) throw new Error(`GitHub API error: ${res.status}`)
 
-    const data = await res.json()
-    // GitHub returns base64-encoded content
-    const content = atob(data.content.replace(/\n/g, ''))
+    const data: any = await res.json()
+    const content: string = atob((data.content as string).replace(/\n/g, ''))
     return { content, sha: data.sha, path: data.path }
   },
 })
@@ -193,15 +178,15 @@ export const commitFile = action({
     path: v.string(),
     content: v.string(),
     message: v.string(),
-    sha: v.optional(v.string()), // required for updates, omit for new files
+    sha: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ sha: string; url: string }> => {
     const token = await ctx.runQuery(api.github.getToken, { userId: args.userId })
     if (!token) throw new Error('GitHub not connected')
 
     const body: Record<string, unknown> = {
       message: args.message,
-      content: btoa(args.content), // base64 encode
+      content: btoa(args.content),
     }
     if (args.sha) body.sha = args.sha
 
@@ -218,11 +203,11 @@ export const commitFile = action({
     )
 
     if (!res.ok) {
-      const err = await res.json()
+      const err: any = await res.json()
       throw new Error(`GitHub commit failed: ${err.message}`)
     }
 
-    const result = await res.json()
+    const result: any = await res.json()
     return { sha: result.content.sha, url: result.content.html_url }
   },
 })
