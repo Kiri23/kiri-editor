@@ -7,6 +7,161 @@
    YAML is invisible — users see rendered forms.
    ============================================ */
 
+/* --- Workspace Selector --- */
+
+.workspace-selector {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--sp-6);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: var(--sp-4);
+  text-align: center;
+}
+
+.workspace-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.workspace-subtitle {
+  font-size: var(--text-base);
+  color: var(--ink-tertiary);
+}
+
+.github-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-6);
+  background: #24292e;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duration) var(--ease);
+}
+.github-connect-btn:hover { background: #1b1f23; }
+
+.workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-4);
+}
+
+.workspace-user {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.workspace-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.workspace-username {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.workspace-disconnect {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--ink-tertiary);
+  cursor: pointer;
+}
+
+.workspace-heading {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: var(--sp-3);
+}
+
+.workspace-loading {
+  color: var(--ink-tertiary);
+  text-align: center;
+  padding: var(--sp-6);
+}
+
+.workspace-repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.workspace-repo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--document);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  text-align: left;
+  transition: all var(--duration) var(--ease);
+}
+.workspace-repo-card:hover {
+  border-color: var(--blueprint-border);
+  background: var(--blueprint-soft);
+}
+
+.workspace-repo-name {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--ink);
+}
+
+.workspace-repo-lock { color: var(--ink-muted); }
+
+.workspace-repo-desc {
+  font-size: var(--text-sm);
+  color: var(--ink-tertiary);
+  margin: 0;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.back-btn:hover { background: var(--document-hover); }
+
 :root {
   /* Ink — text hierarchy */
   --ink: #1a1a2e;

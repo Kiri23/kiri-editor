@@ -23,4 +23,12 @@ export default defineSchema({
     lastEditedBy: v.string(),
     updatedAt: v.number(),
   }).index('by_project', ['projectId']),
+
+  githubTokens: defineTable({
+    userId: v.string(),
+    accessToken: v.string(),
+    username: v.string(),
+    avatarUrl: v.optional(v.string()),
+    connectedAt: v.number(),
+  }).index('by_userId', ['userId']),
 })

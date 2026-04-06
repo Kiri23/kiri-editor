@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { FileTree } from '../components/FileTree'
+import { GitHubFileTree } from '../components/GitHubFileTree'
 import { ComponentPalette } from '../components/ComponentPalette'
 import { DocumentCanvas } from '../components/DocumentCanvas'
 import { PropertyEditor } from '../components/PropertyEditor'
 import { Preview } from '../components/Preview'
 import { useDocEditor } from '../../hooks/useDocEditor'
 
-export function EditorLayout() {
+interface Props {
+  workspace: { owner: string; repo: string }
+  onBack: () => void
+}
+
+export function EditorLayout({ workspace, onBack }: Props) {
   const editor = useDocEditor()
   const [showFileTree, setShowFileTree] = useState(false)
+  const [activeGitHubPath, setActiveGitHubPath] = useState<string | null>(null)
 
   if (editor.isLoading) {
     return (
@@ -37,7 +44,12 @@ export function EditorLayout() {
               <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
-          <span className="logo">Kiri</span>
+          <button className="back-btn" onClick={onBack} aria-label="Back to workspaces">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <span className="logo">{workspace.repo}</span>
         </div>
         <input
           className="doc-title"
@@ -71,13 +83,22 @@ export function EditorLayout() {
 
       <div className="editor-body">
         <div className={`file-tree-container ${showFileTree ? 'open' : ''}`}>
-          <FileTree
-            documents={editor.documents}
-            activeId={editor.documentId}
-            onSelect={(id) => { editor.switchDocument(id); setShowFileTree(false) }}
-            onCreate={editor.createNewDocument}
-            onDelete={editor.deleteDocument}
-          />
+          {workspace ? (
+            <GitHubFileTree
+              owner={workspace.owner}
+              repo={workspace.repo}
+              activePath={activeGitHubPath}
+              onSelect={(path) => { setActiveGitHubPath(path); setShowFileTree(false) }}
+            />
+          ) : (
+            <FileTree
+              documents={editor.documents}
+              activeId={editor.documentId}
+              onSelect={(id) => { editor.switchDocument(id); setShowFileTree(false) }}
+              onCreate={editor.createNewDocument}
+              onDelete={editor.deleteDocument}
+            />
+          )}
         </div>
 
         {showFileTree && (
