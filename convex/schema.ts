@@ -31,4 +31,15 @@ export default defineSchema({
     avatarUrl: v.optional(v.string()),
     connectedAt: v.number(),
   }).index('by_userId', ['userId']),
+
+  // Reverse-link rows consumed by DocsifyTemplate viewers via live query.
+  // One row per (target, source) edge. `projectKey` lets multiple viewers
+  // share one deployment without needing a Convex project Id.
+  backlinks: defineTable({
+    projectKey: v.string(),
+    target: v.string(),
+    source: v.string(),
+  })
+    .index('by_project_target', ['projectKey', 'target'])
+    .index('by_project_source', ['projectKey', 'source']),
 })
